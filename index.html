@@ -83,6 +83,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 .back-t{font-family:var(--num);font-size:13cqw;letter-spacing:.1em;line-height:1}
 .back-s{font-size:3.6cqw;letter-spacing:.2em;color:var(--muted)}
 .card.top .back.g-S{animation:glowS 1.3s ease-in-out infinite}
+.card.top .back.g-PS{animation:glowPS 1.1s ease-in-out infinite}
+@keyframes glowPS{0%,100%{box-shadow:0 0 26px 6px rgba(255,154,60,.8),0 0 70px 18px rgba(255,94,58,.45);border-color:#ffb36b}50%{box-shadow:0 0 40px 12px rgba(255,211,110,.95),0 0 110px 30px rgba(255,154,60,.55);border-color:#ffe9a8}}
 .card.top .back.g-A{animation:glowA 1.6s ease-in-out infinite}
 .card.top .back.g-B{box-shadow:0 0 18px 2px rgba(143,180,255,.45)}
 @keyframes glowS{0%,100%{box-shadow:0 0 22px 4px rgba(255,122,217,.7),0 0 60px 14px rgba(120,200,255,.35);border-color:#ff9be6}50%{box-shadow:0 0 34px 10px rgba(255,210,110,.85),0 0 90px 24px rgba(255,122,217,.45);border-color:#ffe08a}}
@@ -100,6 +102,10 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 .r-C{--face:linear-gradient(165deg,#2b3b5a,#18233b);--frame:linear-gradient(135deg,#9aa6bd,#5e6a82)}
 .cf-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
 .badge{width:14cqw;height:14cqw;display:grid;place-items:center;font-family:var(--num);font-size:12cqw;line-height:1;padding-top:1cqw;box-sizing:border-box;border-radius:3cqw;background:rgba(0,0,0,.32);border:1.5px solid var(--rk);color:var(--rk)}
+.r-PS{--face:linear-gradient(160deg,#3a1206,#0b2a66 50%,#4a1a08);--frame:conic-gradient(from 0deg,#ff9a3c,#ffd36e,#ff5e3a,#ffe9a8,#ff9a3c)}
+.r-PS .badge{color:#fff;background:linear-gradient(135deg,#ff5e3a,#ff9a3c,#ffd36e);border-color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);font-size:10cqw;letter-spacing:-.02em}
+.r-PS .holo{background:repeating-linear-gradient(115deg,#ff5e3a 0%,#ffd36e 8%,#fff3c4 14%,#ff9a3c 22%,#ff5e3a 30%);background-size:280% 280%;background-position:var(--mx) var(--my);mix-blend-mode:color-dodge;opacity:.4}
+.r-PS .j-body{fill:#1d4fd0}
 .r-S .badge{color:#fff;background:linear-gradient(135deg,#ff7ad9,#ffd36e,#7ec8ff);border-color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 .ovr{display:flex;align-items:baseline;gap:1.4cqw}
 .ovr span{font-size:3.4cqw;font-weight:700;color:var(--muted);letter-spacing:.1em}
@@ -192,7 +198,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
             <div class="pk-ko">통산 9번째 우승 기념</div>
             <div class="pk-stars" aria-label="통산 우승 9회"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           </div>
-          <div class="pk-foot">랜덤 5장 · S등급 확률 1.5%</div>
+          <div class="pk-foot">랜덤 5장 · 가을야구 1% · S 1.5%</div>
           <div class="crimp"></div>
           <div class="sheen"></div>
         </div>
@@ -355,14 +361,44 @@ PIT.forEach(([name,role,G,ERA,W,L,SV,HLD,IP,SO,tag])=>{
   const hl = n.hl || `1군 ${G}경기 등판` + (W?`, ${W}승`:'') + (HLD?` ${HLD}홀드`:'') + (SV?` ${SV}세이브`:'');
   PLAYERS.push({name,pos:role==='선발'?'선발투수':role==='마무리'?'마무리':'불펜투수',t:'P',G,ovr,no:numOf(name,tag),titles:n.titles||[],stats,hl,tag});
 });
+// ---------- 가을야구 스페셜 (플레이오프+한국시리즈 10경기 합산, KBO 기록실 기준) ----------
+// 기준: 타자 25타석 이상·OPS .780 이상, 투수 5이닝 이상·ERA 3.00 이하
+const AUTUMN = ['#ff9a3c','#ffd36e','#ff5e3a','#ffe9a8','#ff9a3c'];
+const PS_LIST = [
+  // [이름, 구분표기, 포지션, 투타, 기록8개, 한 줄, 추가 타이틀]
+  ['구자욱','', '좌익수','B',['10','.325','13','1','8','0','.400','.900'],'한국시리즈 타율 .500, KS MVP',['KS MVP']],
+  ['박승규','', '외야수','B',['10','.394','13','1','9','1','.459','1.035'],'가을야구 타율 .394, OPS 1.035',[]],
+  ['최형우','', '지명타자','B',['9','.370','10','2','6','0','.393','1.022'],'플레이오프 2홈런, 가을야구 타율 .370',[]],
+  ['김영웅','', '3루수','B',['10','.367','11','0','5','0','.424','.791'],'정규시즌 .167에서 가을야구 .367로 반등',[]],
+  ['디아즈','', '1루수','B',['10','.250','10','2','8','0','.318','.793'],'가을야구 2홈런 8타점',[]],
+  ['김지찬','', '중견수','B',['10','.282','11','0','6','1','.391','.802'],'가을야구 10경기 출루율 .391',[]],
+  ['후라도','', '선발투수','P',['3','1.31','3-0','0','0','20⅔','12','0.97'],'플레이오프 2승, 한국시리즈 1승, 가을 3전 전승',['가을 3승']],
+  ['원태인','', '선발투수','P',['5','1.74','2-0','0','0','10⅓','11','1.16'],'가을야구 2승, ERA 1.74',[]],
+  ['페덱','', '선발투수','P',['4','3.00','0-1','1','0','21','18','1.05'],'가을야구 21이닝 18탈삼진',[]],
+  ['이승민','', '불펜투수','P',['8','1.04','0-0','0','3','8⅔','6','0.81'],'가을야구 8경기 3홀드, ERA 1.04',[]],
+  ['김태훈','투수','불펜투수','P',['7','1.42','1-0','0','1','6⅓','8','0.47'],'가을야구 7경기 WHIP 0.47',[]],
+  ['이재희','', '불펜투수','P',['3','0.00','1-0','0','0','5','5','0.80'],'가을야구 5이닝 무실점, 한국시리즈 1승',[]],
+  ['배찬승','', '불펜투수','P',['6','1.69','0-0','1','1','5⅓','7','1.50'],'한국시리즈 세이브 포함 가을야구 6경기',[]]
+];
+const BAT_L=['경기','타율','안타','홈런','타점','도루','출루율','OPS'], PIT_L=['경기','ERA','승-패','세이브','홀드','이닝','탈삼진','WHIP'];
+PS_LIST.forEach(([name,tag,pos,t,vals,hl,extra])=>{
+  // 가을야구 성적으로 OVR 계산 (타자 OPS, 투수 ERA·이닝), 타이틀 보너스
+  const ipNum=v=>parseFloat(v)+(v.includes('⅓')?1/3:v.includes('⅔')?2/3:0);
+  const bonus=extra.includes('KS MVP')?5:extra.length?2:0;
+  const raw=t==='B' ? 88+(parseFloat(vals[7])-.78)/.26*9 : 88+(3-parseFloat(vals[1]))/3*6+Math.min(4,ipNum(vals[5])/5);
+  const ovr=Math.round(Math.max(90,Math.min(99,raw+bonus)));
+  PLAYERS.push({name,pos,t,G:+vals[0],ovr,no:numOf(name,tag||undefined),titles:['2026 가을야구',...extra],
+    stats:vals.map((v,i)=>[(t==='P'?PIT_L:BAT_L)[i],v]),hl,tag:tag||undefined,ps:true});
+});
 PLAYERS.forEach((p,i)=>{ p.id=i+1; p.prof=profileOf(p.name,p.tag); });
 const RK = {
+  PS:{c:'#ff9a3c', w:1, v:4},
   S:{c:'#ff7ad9', w:1.5, v:3},
   A:{c:'#ffcf4a', w:8,  v:2},
   B:{c:'#8fb4ff', w:30, v:1},
   C:{c:'#9aa6bd', w:60.5, v:0}
 };
-PLAYERS.forEach(p => p.rank = p.ovr>=90?'S':p.ovr>=80?'A':p.ovr>=70?'B':'C');
+PLAYERS.forEach(p => p.rank = p.ps?'PS':p.ovr>=90?'S':p.ovr>=80?'A':p.ovr>=70?'B':'C');
 
 const $ = id => document.getElementById(id);
 const app=$('app'), stage=$('stage'), pack=$('pack'), packTop=$('packTop'), tear=$('tear'), packWrap=$('packWrap'),
@@ -581,7 +617,7 @@ function faceHTML(p){
 
 function rollRank(){
   let r=Math.random()*100;
-  for(const k of ['S','A','B','C']){ if((r-=RK[k].w)<0) return k; }
+  for(const k of ['PS','S','A','B','C']){ if((r-=RK[k].w)<0) return k; }
   return 'C';
 }
 function drawPack(){
@@ -663,18 +699,18 @@ function onUp(e,c,cancel){
 
 function reveal(c){
   c.busy=true;
-  const r=c.p.rank, pre = r==='S' ? 1150 : r==='A' ? 560 : 0;
+  const r=c.p.rank, pre = r==='PS' ? 1500 : r==='S' ? 1150 : r==='A' ? 560 : 0;
   let iv=0;
   if(pre){
     c.el.classList.add('charge'); sfx.charge(pre);
-    vib(r==='S' ? [25,50,25,50,25,50,25,50,60] : [25,60,40]);
-    hint(r==='S' ? '어? 뭔가 온다…' : '반짝인다!', '');
+    vib(r==='PS'||r==='S' ? [25,50,25,50,25,50,25,50,60] : [25,60,40]);
+    hint(r==='PS' ? '가을 냄새가 난다…!' : r==='S' ? '어? 뭔가 온다…' : '반짝인다!', '');
     iv=setInterval(()=>{
       const b=c.el.getBoundingClientRect();
       const side=Math.random()*4|0, t=Math.random();
       const x = side<2 ? b.left+t*b.width : (side===2?b.left:b.right);
       const y = side<2 ? (side===0?b.top:b.bottom) : b.top+t*b.height;
-      burst(x,y, r==='S'?RAINBOW:['#ffcf4a','#fff3b8'], r==='S'?4:2, {speed:3.5, g:-.03, life:45, kind:'spark'});
+      burst(x,y, r==='PS'?AUTUMN:r==='S'?RAINBOW:['#ffcf4a','#fff3b8'], r==='PS'?5:r==='S'?4:2, {speed:3.5, g:-.03, life:45, kind:'spark'});
     }, 50);
   }
   setTimeout(()=>{
@@ -687,7 +723,12 @@ function reveal(c){
 }
 function payoff(c){
   const b=c.el.getBoundingClientRect(), x=b.left+b.width/2, y=b.top+b.height/2, r=c.p.rank;
-  if(r==='S'){
+  if(r==='PS'){
+    flash('rgba(255,170,90,.95)', 1, 1000); shake(12); sfx.S(); vib([80,40,80,40,160]);
+    burst(x,y,AUTUMN,170,{speed:14,size:8,life:95});
+    setTimeout(()=>burst(x,b.top,AUTUMN,70,{speed:9,angle:-Math.PI/2,spread:2.4,size:7,life:85}),180);
+    setTimeout(()=>burst(x,y,['#ffffff','#ffd36e'],60,{speed:11,size:6,life:70}),420);
+  } else if(r==='S'){
     flash('rgba(255,170,230,.95)', 1, 900); shake(10); sfx.S(); vib([70,40,140]);
     burst(x,y,RAINBOW,150,{speed:13,size:8,life:90});
     setTimeout(()=>burst(x,b.top,RAINBOW,60,{speed:9,angle:-Math.PI/2,spread:2.2,size:7,life:80}),180);
@@ -773,8 +814,8 @@ const SITE='https://samsung-champions-pack.onrender.com';
 const JERSEY_BODY='M62 14 L36 22 L6 48 L26 84 L46 74 L46 172 L154 172 L154 74 L174 84 L194 48 L164 22 L138 14 Q100 40 62 14 Z';
 const JERSEY_SHADE='M100 30 L154 74 L154 172 L100 172 Z';
 const JERSEY_TRIM='M62 14 Q100 40 138 14 M8 52 L26 84 M192 52 L174 84';
-const FACE={S:['#1b1257','#0b2a66','#3b1257'],A:['#0f2f70','#081a42'],B:['#164089','#0a2252'],C:['#2b3b5a','#18233b']};
-const FRAME={S:['#ff7ad9','#ffd36e','#7effc6','#7ec8ff','#c69bff','#ff7ad9'],A:['#fff3b8','#ffcf4a','#a8761b','#ffe58a','#b9862a'],B:['#d9e6ff','#8fb4ff','#4d6fae'],C:['#9aa6bd','#5e6a82']};
+const FACE={PS:['#3a1206','#0b2a66','#4a1a08'],S:['#1b1257','#0b2a66','#3b1257'],A:['#0f2f70','#081a42'],B:['#164089','#0a2252'],C:['#2b3b5a','#18233b']};
+const FRAME={PS:AUTUMN,S:['#ff7ad9','#ffd36e','#7effc6','#7ec8ff','#c69bff','#ff7ad9'],A:['#fff3b8','#ffcf4a','#a8761b','#ffe58a','#b9862a'],B:['#d9e6ff','#8fb4ff','#4d6fae'],C:['#9aa6bd','#5e6a82']};
 function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function grad(ctx,x0,y0,x1,y1,cols){ const g=ctx.createLinearGradient(x0,y0,x1,y1); cols.forEach((c,i)=>g.addColorStop(i/(cols.length-1),c)); return g; }
 function wrapLines(ctx,text,maxW){ const out=[]; let line=''; for(const ch of text){ if(ctx.measureText(line+ch).width>maxW && line){ out.push(line); line=ch; } else line+=ch; } if(line) out.push(line); return out; }
@@ -802,17 +843,17 @@ async function renderCardImage(p){
   const cw=760, ch=1064, x0=(W-cw)/2, y0=176, u=cw/100;
   ctx.save(); ctx.shadowColor='rgba(0,0,0,.55)'; ctx.shadowBlur=60; ctx.shadowOffsetY=30;
   rr(ctx,x0,y0,cw,ch,5*u);
-  if(p.rank==='S' && ctx.createConicGradient){ const g=ctx.createConicGradient(0,x0+cw/2,y0+ch/2); FRAME.S.forEach((c,i)=>g.addColorStop(i/(FRAME.S.length-1),c)); ctx.fillStyle=g; }
+  if((p.rank==='S'||p.rank==='PS') && ctx.createConicGradient){ const fr=FRAME[p.rank], g=ctx.createConicGradient(0,x0+cw/2,y0+ch/2); fr.forEach((c,i)=>g.addColorStop(i/(fr.length-1),c)); ctx.fillStyle=g; }
   else ctx.fillStyle=grad(ctx,x0,y0,x0+cw,y0+ch,FRAME[p.rank]);
   ctx.fill(); ctx.restore();
   const b=u*.9; rr(ctx,x0+b,y0+b,cw-2*b,ch-2*b,5*u-b); ctx.fillStyle=grad(ctx,x0,y0,x0+cw*.4,y0+ch,FACE[p.rank]); ctx.fill();
   const pad=4.5*u, cx=x0+pad, iw=cw-2*pad; let y=y0+pad;
   // 등급 배지, OVR
   rr(ctx,cx,y,14*u,14*u,3*u);
-  if(p.rank==='S'){ ctx.fillStyle=grad(ctx,cx,y,cx+14*u,y+14*u,['#ff7ad9','#ffd36e','#7ec8ff']); ctx.fill(); ctx.strokeStyle='#fff'; }
+  if(p.rank==='S'||p.rank==='PS'){ ctx.fillStyle=grad(ctx,cx,y,cx+14*u,y+14*u,p.rank==='PS'?['#ff5e3a','#ff9a3c','#ffd36e']:['#ff7ad9','#ffd36e','#7ec8ff']); ctx.fill(); ctx.strokeStyle='#fff'; }
   else { ctx.fillStyle='rgba(0,0,0,.32)'; ctx.fill(); ctx.strokeStyle=rk; }
   ctx.lineWidth=3; ctx.stroke();
-  ctx.fillStyle=p.rank==='S'?'#fff':rk; ctx.font=`400 ${12*u}px ${BEBAS}`; ctx.textBaseline='middle'; ctx.fillText(p.rank,cx+7*u,y+7.6*u);
+  ctx.fillStyle=(p.rank==='S'||p.rank==='PS')?'#fff':rk; ctx.font=`400 ${(p.rank==='PS'?10:12)*u}px ${BEBAS}`; ctx.textBaseline='middle'; ctx.fillText(p.rank,cx+7*u,y+7.6*u);
   ctx.textAlign='right'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#fff'; ctx.font=`400 ${13*u}px ${BEBAS}`; ctx.fillText(String(p.ovr),cx+iw,y+12*u);
   const ow=ctx.measureText(String(p.ovr)).width; ctx.fillStyle='#8ea6d6'; ctx.font=`700 ${3.4*u}px ${NOTO}`; ctx.fillText('OVR',cx+iw-ow-1.6*u,y+11.4*u);
   y+=14*u+2.6*u;
@@ -855,8 +896,8 @@ async function renderCardImage(p){
   ctx.textAlign='left'; ctx.fillStyle='#d6e4ff'; ctx.font=`400 ${3.1*u}px ${NOTO}`;
   wrapLines(ctx,p.hl,iw).slice(0,2).forEach((ln,i)=>ctx.fillText(ln,cx,y+2*u+i*4.2*u));
   // S·A 홀로 효과
-  if(p.rank==='S'||p.rank==='A'){ ctx.save(); rr(ctx,x0+b,y0+b,cw-2*b,ch-2*b,5*u-b); ctx.clip(); ctx.globalCompositeOperation='overlay'; ctx.globalAlpha=p.rank==='S'?.38:.3;
-    ctx.fillStyle=p.rank==='S'?grad(ctx,x0,y0,x0+cw,y0+ch,['#ff7ab3','#ffd36e','#7effc6','#7ec8ff','#c69bff','#ff7ab3','#ffd36e']):grad(ctx,x0,y0,x0+cw,y0+ch,['rgba(0,0,0,0)','rgba(255,226,140,.9)','rgba(255,255,255,.8)','rgba(255,226,140,.9)','rgba(0,0,0,0)']);
+  if(p.rank==='S'||p.rank==='A'||p.rank==='PS'){ ctx.save(); rr(ctx,x0+b,y0+b,cw-2*b,ch-2*b,5*u-b); ctx.clip(); ctx.globalCompositeOperation='overlay'; ctx.globalAlpha=p.rank==='A'?.3:.38;
+    ctx.fillStyle=p.rank==='PS'?grad(ctx,x0,y0,x0+cw,y0+ch,['#ff5e3a','#ffd36e','#fff3c4','#ff9a3c','#ff5e3a','#ffd36e']):p.rank==='S'?grad(ctx,x0,y0,x0+cw,y0+ch,['#ff7ab3','#ffd36e','#7effc6','#7ec8ff','#c69bff','#ff7ab3','#ffd36e']):grad(ctx,x0,y0,x0+cw,y0+ch,['rgba(0,0,0,0)','rgba(255,226,140,.9)','rgba(255,255,255,.8)','rgba(255,226,140,.9)','rgba(0,0,0,0)']);
     ctx.fillRect(x0,y0,cw,ch); ctx.restore(); }
   // 하단 주소
   ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#d6e4ff'; ctx.font=`700 30px ${NOTO}`; ctx.fillText(SITE.replace('https://',''),W/2,1302);
