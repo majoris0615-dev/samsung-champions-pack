@@ -120,13 +120,13 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 .pos{position:absolute;left:3cqw;top:3cqw;font-size:3.6cqw;font-weight:900;background:var(--rk);color:#0a1430;padding:1cqw 2.4cqw;border-radius:99px}
 .yr{position:absolute;left:3.4cqw;bottom:2.6cqw;font-family:var(--num);font-size:6cqw;letter-spacing:.14em;color:rgba(255,255,255,.75)}
 .nm{position:relative;z-index:2}
-.name{font-family:var(--display);font-size:10.5cqw;line-height:1.05;letter-spacing:.01em}
-.sub{font-size:3.4cqw;color:var(--muted);margin-top:1cqw;font-weight:700}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6cqw;position:relative;z-index:2}
-.st{background:rgba(0,0,0,.28);border-radius:2.4cqw;padding:1.8cqw 1cqw 1.4cqw;text-align:center;display:flex;flex-direction:column;gap:.6cqw}
-.st b{font-family:var(--num);font-weight:400;font-size:8.6cqw;line-height:1;font-variant-numeric:tabular-nums}
-.st span{font-size:3cqw;color:var(--muted);font-weight:700}
-.foot{font-size:3.3cqw;line-height:1.35;color:var(--ice);position:relative;z-index:2;border-top:1px solid rgba(255,255,255,.12);padding-top:2cqw}
+.name{font-family:var(--display);font-size:9cqw;line-height:1.05;letter-spacing:.01em}
+.sub{font-size:3.2cqw;color:var(--muted);margin-top:1cqw;font-weight:700;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2cqw;position:relative;z-index:2}
+.st{background:rgba(0,0,0,.28);border-radius:2cqw;padding:1.3cqw .6cqw 1cqw;text-align:center;display:flex;flex-direction:column;gap:.6cqw}
+.st b{font-family:var(--num);font-weight:400;font-size:6.2cqw;white-space:nowrap;line-height:1;font-variant-numeric:tabular-nums}
+.st span{font-size:2.6cqw;color:var(--muted);font-weight:700;white-space:nowrap}
+.foot{font-size:3.1cqw;line-height:1.35;color:var(--ice);position:relative;z-index:2;border-top:1px solid rgba(255,255,255,.12);padding-top:2cqw}
 .holo,.glare{position:absolute;inset:0;pointer-events:none;z-index:3;border-radius:inherit}
 .r-S .holo{background:repeating-linear-gradient(115deg,#ff7ab3 0%,#ffd36e 7%,#7effc6 14%,#7ec8ff 21%,#c69bff 28%,#ff7ab3 35%);background-size:280% 280%;background-position:var(--mx) var(--my);mix-blend-mode:color-dodge;opacity:.42}
 .r-A .holo{background:linear-gradient(115deg,transparent 30%,rgba(255,226,140,.55) 45%,rgba(255,255,255,.4) 50%,rgba(255,226,140,.5) 55%,transparent 70%);background-size:250% 250%;background-position:var(--mx) var(--my);mix-blend-mode:overlay}
@@ -316,13 +316,29 @@ const NUM = {'구자욱':5,'디아즈':0,'최형우':34,'김지찬':58,'김성�
   '최지광':11,'장찬희':60,'임기영':38,'이승현|2002년생':57,'백정현':29,'사토시':74,'이재희':17,'김백산':63,'이재익':45,'육선엽':4,
   '김무신':48,'정재훈':69,'양현':19,'홍원표':65,'박용재':68,'오러클린':64,'보스':43,'미야지':15};
 const numOf=(name,tag)=>{ const k=tag?name+'|'+tag:name; return k in NUM ? String(NUM[k]) : ''; };
+// 세부 기록 (KBO 기록실): 도루, 출루율, WHIP
+const SB = {'류지혁':29,'김지찬':22,'김성윤':19,'박승규':8,'구자욱':6,'전병우':3,'디아즈':2,'양우현':2,'최형우':2,'김상준':1,'김헌곤':1,'이재현':1,'이진용':1};
+const OBP = {'이진용':'.500','구자욱':'.458','이창용':'.333','김지찬':'.397','디아즈':'.384','최형우':'.387','김성윤':'.375','김헌곤':'.339','김재상':'.333','류지혁':'.366','강민호':'.352','박승규':'.381','심재훈':'.302','전병우':'.355','김도환':'.326','이재현':'.337','김현준':'.354','박계범':'.232','김상준':'.280','양우현':'.267','김영웅':'.222','김재혁':'.167','박세혁':'.211','윤정빈':'.143','김태훈|외야수':'.208','홍현빈':'.125','장승현':'.229','함수호':'.167','이해승':'.158','이성규':'.370','김재성':'.000','차승준':'.000'};
+const WHIP = {'이재익':'1.15','배찬승':'1.66','이재희':'1.69','최지광':'1.23','김태훈|투수':'1.03','이승민':'1.28','페덱':'0.96','김재윤':'1.07','후라도':'1.25','김백산':'1.47','장찬희':'1.39','원태인':'1.39','최원태':'1.43','임기영':'1.32','보스':'1.57','오러클린':'1.39','양창섭':'1.51','미야지':'1.60','사토시':'1.68','이승현|1991년생':'1.92','이승현|2002년생':'1.63','백정현':'1.50','김무신':'3.00','육선엽':'2.14','정재훈':'2.25','양현':'3.00','홍원표':'4.50'};
+// 프로필: 생년월일|키|몸무게 (KBO 선수 조회, 시즌 중 떠난 3명은 구단 발표·위키 기준)
+const PROF = {'강민호':'1985-08-18|185|100','구자욱':'1993-02-12|189|75','김도환':'2000-04-14|178|90','김무신':'1999-12-08|183|94','김백산':'2003-10-13|183|86','김상준':'2002-12-30|176|75','김성윤':'1999-02-02|163|62','김영웅':'2003-08-24|183|81','김재상':'2004-07-26|180|81','김재성':'1996-10-30|185|85','김재윤':'1990-09-16|185|91','김재혁':'1999-12-26|182|85','김지찬':'2001-03-08|163|64','김태훈|투수':'1992-03-02|187|101','김태훈|외야수':'1996-03-31|177|78','김헌곤':'1988-11-09|174|81','김현준':'2002-10-11|178|78','디아즈':'1996-11-19|188|105','류지혁':'1994-01-13|181|75','박계범':'1996-01-11|177|84','박세혁':'1990-01-09|181|86','박승규':'2000-09-02|178|78','박용재':'2007-03-24|195|105','배찬승':'2006-01-01|180|85','백정현':'1987-07-13|184|80','사토시':'1998-05-28|193|93','심재훈':'2006-03-03|180|80','양우현':'2000-04-13|175|82','양창섭':'1999-09-22|182|85','양현':'1992-08-23|189|104','원태인':'2000-04-06|183|92','육선엽':'2005-07-13|190|90','윤정빈':'1999-06-24|182|93','이병헌':'1999-10-26|180|87','이성규':'1993-08-03|178|82','이승민':'2000-08-26|174|79','이승현|2002년생':'2002-05-19|183|102','이승현|1991년생':'1991-11-20|181|92','이재익':'1994-03-18|180|76','이재현':'2003-02-04|180|82','이재희':'2001-10-11|187|88','이진용':'2006-06-30|183|80','이창용':'1999-06-03|184|89','이해승':'2000-08-01|180|86','임기영':'1993-04-16|184|86','장승현':'1994-03-07|184|86','장찬희':'2007-10-05|186|80','전병우':'1992-10-24|182|93','정재훈':'2007-03-08|185|85','차승준':'2006-11-20|181|88','최원태':'1997-01-07|184|104','최지광':'1998-03-13|173|85','최형우':'1983-12-16|180|106','페덱':'1996-01-08|196|98','함수호':'2006-03-10|181|88','홍원표':'2001-03-27|183|86','홍현빈':'1997-08-29|174|70','후라도':'1996-01-30|188|109','오러클린':'2000-03-14|196|101','보스':'1992-06-26|188|97','미야지':'1999-08-02|186|90'};
+const keyOf=(name,tag)=>tag?name+'|'+tag:name;
+// 프로필 한 줄: 생년월일, 만 나이, 키·몸무게
+function profileOf(name,tag){
+  const v=PROF[keyOf(name,tag)]; if(!v) return '';
+  const [b,h,w]=v.split('|'), [y,m,d]=b.split('-').map(Number), t=new Date();
+  let age=t.getFullYear()-y; if(t.getMonth()+1<m || (t.getMonth()+1===m && t.getDate()<d)) age--;
+  return `${b.replace(/-/g,'.')} (만 ${age}세) · ${h}cm ${w}kg`;
+}
+// 이닝 표기: 145.33 → 145⅓
+const ipStr=ip=>{ const n=Math.floor(ip+1e-6), f=Math.round((ip-n)*3); return (n||!f?String(n):'')+(f===1?'⅓':f===2?'⅔':''); };
 const lim=(v,a,b)=>Math.max(a,Math.min(b,v));
 const PLAYERS = [];
 BAT.forEach(([name,pos,G,PA,R,H,HR,RBI,AVG,OPS,tag])=>{
   const n=NOTE[name]||{};
   const q=lim(((parseFloat(OPS)||0)-.45)/.6,0,1), v=lim(PA/500,0,1);
   const ovr=Math.round(lim(45+50*q*(.3+.7*v)+Math.min(8,RBI/16)+Math.min(4,R/25)+(n.bonus||0),40,99));
-  const stats = PA>=30 ? [['타율',AVG],['홈런',String(HR)],['타점',String(RBI)]] : [['경기',String(G)],['안타',String(H)],['타율',AVG]];
+  const stats = [['경기',String(G)],['타율',AVG],['안타',String(H)],['홈런',String(HR)],['타점',String(RBI)],['도루',String(SB[name]||0)],['출루율',OBP[keyOf(name,tag)]||'-'],['OPS',OPS]];
   const hl = n.hl || `1군 ${G}경기 출전` + (H?`, ${H}안타`:'') + (RBI?` ${RBI}타점`:'') + (HR?`, ${HR}홈런`:'');
   PLAYERS.push({name,pos,t:'B',G,ovr,no:numOf(name,tag),titles:n.titles||[],stats,hl,tag});
 });
@@ -330,13 +346,11 @@ PIT.forEach(([name,role,G,ERA,W,L,SV,HLD,IP,SO,tag])=>{
   const n=NOTE[name]||{};
   const q=lim((6-(ERA==='-'?99:parseFloat(ERA)))/4,0,1), v=lim(IP/(role==='선발'?150:65),0,1);
   const ovr=Math.round(lim(45+45*q*(.3+.7*v)+Math.min(8,SV/5)+Math.min(6,HLD/4)+Math.min(5,W/2)+Math.min(4,SO/40)+Math.min(3,IP/50)+(n.bonus||0),40,99));
-  const stats = role==='선발' ? [['ERA',ERA],['승',String(W)],['탈삼진',String(SO)]]
-              : role==='마무리' ? [['ERA',ERA],['세이브',String(SV)],['경기',String(G)]]
-              : [['ERA',ERA],['홀드',String(HLD)],['경기',String(G)]];
+  const stats = [['경기',String(G)],['ERA',ERA],['승-패',W+'-'+L],['세이브',String(SV)],['홀드',String(HLD)],['이닝',ipStr(IP)],['탈삼진',String(SO)],['WHIP',WHIP[keyOf(name,tag)]||'-']];
   const hl = n.hl || `1군 ${G}경기 등판` + (W?`, ${W}승`:'') + (HLD?` ${HLD}홀드`:'') + (SV?` ${SV}세이브`:'');
   PLAYERS.push({name,pos:role==='선발'?'선발투수':role==='마무리'?'마무리':'불펜투수',t:'P',G,ovr,no:numOf(name,tag),titles:n.titles||[],stats,hl,tag});
 });
-PLAYERS.forEach((p,i)=>p.id=i+1);
+PLAYERS.forEach((p,i)=>{ p.id=i+1; p.prof=profileOf(p.name,p.tag); });
 const RK = {
   S:{c:'#ff7ad9', w:1.5, v:3},
   A:{c:'#ffcf4a', w:8,  v:2},
@@ -553,7 +567,7 @@ function faceHTML(p){
       <div class="pos">${p.pos}</div>
       ${p.titles.length?`<div class="titles">${p.titles.map(t=>`<span>${t}</span>`).join('')}</div>`:''}
     </div>
-    <div class="nm"><div class="name">${p.name}</div><div class="sub">${p.tag?p.tag+', ':''}2026 정규시즌 ${p.G}경기</div></div>
+    <div class="nm"><div class="name">${p.name}</div><div class="sub">${p.prof}</div></div>
     <div class="stats">${st}</div>
     <div class="foot">${p.hl}</div>
     <div class="holo"></div><div class="glare"></div>
