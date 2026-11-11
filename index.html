@@ -157,6 +157,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 #zoom{align-items:center;justify-content:center;gap:16px}
 #zoomcard{position:relative;width:var(--cw);aspect-ratio:5/7;transition:transform .2s ease-out;touch-action:none}
 #zoom p{font-size:12px;color:var(--muted);margin:0}
+.zoom-actions{display:flex;gap:10px}
+.btn:disabled{opacity:.6}
+#toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;background:rgba(10,20,48,.95);border:1px solid var(--line);color:var(--fg);font-size:13px;font-weight:700;padding:10px 16px;border-radius:12px;white-space:nowrap}
 
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
 #flash{position:fixed;inset:0;pointer-events:none;z-index:69;opacity:0}
@@ -216,8 +219,10 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 </div>
 <div class="overlay" id="zoom" hidden>
   <div id="zoomcard"></div>
-  <p>카드를 문질러 보세요 · 바깥을 탭하면 닫혀요</p>
+  <div class="zoom-actions"><button class="btn primary" id="shareBtn">이미지로 공유</button><button class="btn" id="zoomClose">닫기</button></div>
+  <p>카드를 문질러 보면 반짝여요</p>
 </div>
+<div id="toast" role="status" hidden></div>
 
 <canvas id="fx"></canvas>
 <div id="flash"></div>
@@ -718,6 +723,7 @@ function showResult(){
   result.innerHTML=`<h2>이번 팩 결과</h2>
     <div class="best">최고 등급 ${best.rank} · ${best.name}${newCount?` · 새 카드 ${newCount}장`:''}</div>
     <div class="fan">${fan}</div>
+    <div class="best">카드를 누르면 크게 보고 공유할 수 있어요</div>
     <div class="actions"><button class="btn primary" id="again">한 팩 더 까기</button><button class="btn" id="toDex">도감 보기</button></div>`;
   result.hidden=false;
   result.querySelectorAll('.mini').forEach(m=>m.addEventListener('click',()=>openZoom(+m.dataset.id)));
@@ -748,7 +754,7 @@ $('dexClose').addEventListener('click', ()=>{ $('dex').hidden=true; });
 
 const zoom=$('zoom'), zc=$('zoomcard');
 function openZoom(id){
-  const p=PLAYERS.find(x=>x.id===id); if(!p) return;
+  const p=PLAYERS.find(x=>x.id===id); if(!p) return; zoomP=p;
   zc.innerHTML=faceHTML(p); zoom.hidden=false; zc.style.transform='';
   zc.animate([{transform:'scale(.6) rotateY(90deg)',opacity:0},{transform:'scale(1) rotateY(0)',opacity:1}],{duration:420,easing:'cubic-bezier(.2,.9,.3,1.2)'});
 }
@@ -761,7 +767,120 @@ function zoomHolo(e){
 zc.addEventListener('pointerdown', e=>{ zc.setPointerCapture(e.pointerId); zoomHolo(e); });
 zc.addEventListener('pointermove', zoomHolo);
 zc.addEventListener('pointerup', ()=>{ zc.style.transform=''; });
-zoom.addEventListener('click', e=>{ if(!zc.contains(e.target)) zoom.hidden=true; });
+zoom.addEventListener('click', e=>{ if(e.target===zoom) zoom.hidden=true; });
+// ---------- 카드 공유 이미지 (캔버스로 직접 그림) ----------
+const SITE='https://samsung-champions-pack.onrender.com';
+const JERSEY_BODY='M62 14 L36 22 L6 48 L26 84 L46 74 L46 172 L154 172 L154 74 L174 84 L194 48 L164 22 L138 14 Q100 40 62 14 Z';
+const JERSEY_SHADE='M100 30 L154 74 L154 172 L100 172 Z';
+const JERSEY_TRIM='M62 14 Q100 40 138 14 M8 52 L26 84 M192 52 L174 84';
+const FACE={S:['#1b1257','#0b2a66','#3b1257'],A:['#0f2f70','#081a42'],B:['#164089','#0a2252'],C:['#2b3b5a','#18233b']};
+const FRAME={S:['#ff7ad9','#ffd36e','#7effc6','#7ec8ff','#c69bff','#ff7ad9'],A:['#fff3b8','#ffcf4a','#a8761b','#ffe58a','#b9862a'],B:['#d9e6ff','#8fb4ff','#4d6fae'],C:['#9aa6bd','#5e6a82']};
+function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function grad(ctx,x0,y0,x1,y1,cols){ const g=ctx.createLinearGradient(x0,y0,x1,y1); cols.forEach((c,i)=>g.addColorStop(i/(cols.length-1),c)); return g; }
+function wrapLines(ctx,text,maxW){ const out=[]; let line=''; for(const ch of text){ if(ctx.measureText(line+ch).width>maxW && line){ out.push(line); line=ch; } else line+=ch; } if(line) out.push(line); return out; }
+async function loadFonts(p){
+  const txt=p.name+p.prof+p.hl+p.pos+p.titles.join('')+p.stats.map(s=>s[0]).join('')+'SAMSUNG V9 PACK 2026 우승 기념 선수 카드 OVR samsung-champions-pack.onrender.com';
+  try{ await Promise.all([
+    document.fonts.load('400 80px "Bebas Neue"'),
+    document.fonts.load('400 40px "Black Han Sans"', txt),
+    document.fonts.load('700 30px "Noto Sans KR"', txt),
+    document.fonts.load('900 30px "Noto Sans KR"', txt)
+  ]); }catch(e){}
+}
+async function renderCardImage(p){
+  await loadFonts(p);
+  const W=1080,H=1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const ctx=cv.getContext('2d'), rk=RK[p.rank].c;
+  const BEBAS='"Bebas Neue", Impact, sans-serif', HAN='"Black Han Sans", "Noto Sans KR", sans-serif', NOTO='"Noto Sans KR", sans-serif';
+  // 배경
+  ctx.fillStyle='#050f26'; ctx.fillRect(0,0,W,H);
+  const bg=ctx.createRadialGradient(W/2,-80,40,W/2,-80,1150); bg.addColorStop(0,'#0c2a68'); bg.addColorStop(1,'rgba(5,15,38,0)'); ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#f3f7ff'; ctx.font=`400 66px ${BEBAS}`; ctx.fillText('SAMSUNG V9 PACK',W/2,100);
+  ctx.fillStyle='#8ea6d6'; ctx.font=`700 28px ${NOTO}`; ctx.fillText('2026 우승 기념 선수 카드',W/2,142);
+  // 카드 틀
+  const cw=760, ch=1064, x0=(W-cw)/2, y0=176, u=cw/100;
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.55)'; ctx.shadowBlur=60; ctx.shadowOffsetY=30;
+  rr(ctx,x0,y0,cw,ch,5*u);
+  if(p.rank==='S' && ctx.createConicGradient){ const g=ctx.createConicGradient(0,x0+cw/2,y0+ch/2); FRAME.S.forEach((c,i)=>g.addColorStop(i/(FRAME.S.length-1),c)); ctx.fillStyle=g; }
+  else ctx.fillStyle=grad(ctx,x0,y0,x0+cw,y0+ch,FRAME[p.rank]);
+  ctx.fill(); ctx.restore();
+  const b=u*.9; rr(ctx,x0+b,y0+b,cw-2*b,ch-2*b,5*u-b); ctx.fillStyle=grad(ctx,x0,y0,x0+cw*.4,y0+ch,FACE[p.rank]); ctx.fill();
+  const pad=4.5*u, cx=x0+pad, iw=cw-2*pad; let y=y0+pad;
+  // 등급 배지, OVR
+  rr(ctx,cx,y,14*u,14*u,3*u);
+  if(p.rank==='S'){ ctx.fillStyle=grad(ctx,cx,y,cx+14*u,y+14*u,['#ff7ad9','#ffd36e','#7ec8ff']); ctx.fill(); ctx.strokeStyle='#fff'; }
+  else { ctx.fillStyle='rgba(0,0,0,.32)'; ctx.fill(); ctx.strokeStyle=rk; }
+  ctx.lineWidth=3; ctx.stroke();
+  ctx.fillStyle=p.rank==='S'?'#fff':rk; ctx.font=`400 ${12*u}px ${BEBAS}`; ctx.textBaseline='middle'; ctx.fillText(p.rank,cx+7*u,y+7.6*u);
+  ctx.textAlign='right'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#fff'; ctx.font=`400 ${13*u}px ${BEBAS}`; ctx.fillText(String(p.ovr),cx+iw,y+12*u);
+  const ow=ctx.measureText(String(p.ovr)).width; ctx.fillStyle='#8ea6d6'; ctx.font=`700 ${3.4*u}px ${NOTO}`; ctx.fillText('OVR',cx+iw-ow-1.6*u,y+11.4*u);
+  y+=14*u+2.6*u;
+  // 그림 영역 (유니폼)
+  const artH=55.5*u, ya=y;
+  ctx.save(); rr(ctx,cx,ya,iw,artH,3*u); ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=2; ctx.stroke(); ctx.clip();
+  ctx.strokeStyle=rk; ctx.globalAlpha=.16; ctx.lineWidth=1.5*u;
+  for(let k=-artH; k<iw+artH; k+=8.5*u){ ctx.beginPath(); ctx.moveTo(cx+k,ya+artH); ctx.lineTo(cx+k+artH*Math.tan(35*Math.PI/180),ya); ctx.stroke(); }
+  ctx.globalAlpha=1;
+  const bw=iw*.84, bh=artH*.86, s=Math.min(bw/200,bh/180), jx=cx+(iw-200*s)/2, jy=ya+artH*.1+(bh-180*s)/2;
+  ctx.save(); ctx.translate(jx,jy); ctx.scale(s,s);
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=2.4*u/s; ctx.shadowOffsetY=2*u/s; ctx.fillStyle=p.rank==='S'?'#2a63e8':'#1f5fe0'; ctx.fill(new Path2D(JERSEY_BODY)); ctx.restore();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.stroke(new Path2D(JERSEY_BODY));
+  ctx.fillStyle='rgba(0,10,50,.18)'; ctx.fill(new Path2D(JERSEY_SHADE));
+  ctx.strokeStyle=p.rank==='C'?'#fff':rk; ctx.lineWidth=5; ctx.lineCap='round'; ctx.stroke(new Path2D(JERSEY_TRIM));
+  ctx.textAlign='center'; ctx.fillStyle='#fff'; ctx.font=`400 17px ${HAN}`; ctx.fillText(p.name,100,72);
+  ctx.font=`400 82px ${BEBAS}`; ctx.lineWidth=3; ctx.strokeStyle='#0a2a74'; ctx.lineJoin='round';
+  const ny=p.no?152:140; ctx.strokeText(p.no||'-',100,ny); ctx.fillText(p.no||'-',100,ny);
+  ctx.restore();
+  // 포지션 칩, 타이틀 칩
+  const chip=(text,x,yy,fill,color,size)=>{ ctx.font=`900 ${size}px ${NOTO}`; const tw=ctx.measureText(text).width, w=tw+4.8*u, h=size+2*u; rr(ctx,x,yy,w,h,h/2); ctx.fillStyle=fill; ctx.fill(); ctx.fillStyle=color; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text,x+w/2,yy+h/2+1); ctx.textBaseline='alphabetic'; return w; };
+  chip(p.pos,cx+3*u,ya+3*u,rk,'#0a1430',3.6*u);
+  let tx=cx+3*u; const th=3.4*u+2*u;
+  p.titles.forEach(t=>{ tx+=chip(t,tx,ya+artH-3*u-th,grad(ctx,tx,0,tx+200,0,['#fff3b8','#ffcf4a','#e0a92c']),'#2a1a00',3.4*u)+1.4*u; });
+  ctx.restore();
+  y=ya+artH+2.6*u;
+  // 이름, 프로필
+  ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillStyle='#f3f7ff'; ctx.font=`400 ${9*u}px ${HAN}`; ctx.fillText(p.name,cx,y);
+  y+=9.5*u+1*u; ctx.fillStyle='#8ea6d6'; ctx.font=`700 ${3.2*u}px ${NOTO}`; ctx.fillText(p.prof,cx,y);
+  y+=4.2*u+2.6*u;
+  // 세부 기록 4x2
+  const gap=1.2*u, cwid=(iw-3*gap)/4, chh=12.2*u;
+  p.stats.forEach(([l,v],i)=>{ const col=i%4, row=Math.floor(i/4), sx=cx+col*(cwid+gap), sy=y+row*(chh+gap);
+    rr(ctx,sx,sy,cwid,chh,2*u); ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fill();
+    ctx.textAlign='center'; ctx.fillStyle='#f3f7ff'; ctx.font=`400 ${6.2*u}px ${BEBAS}`; ctx.fillText(v,sx+cwid/2,sy+1.6*u);
+    ctx.fillStyle='#8ea6d6'; ctx.font=`700 ${2.6*u}px ${NOTO}`; ctx.fillText(l,sx+cwid/2,sy+8.4*u); });
+  y+=2*chh+gap+2.6*u;
+  // 한 줄 소개
+  ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,y); ctx.lineTo(cx+iw,y); ctx.stroke();
+  ctx.textAlign='left'; ctx.fillStyle='#d6e4ff'; ctx.font=`400 ${3.1*u}px ${NOTO}`;
+  wrapLines(ctx,p.hl,iw).slice(0,2).forEach((ln,i)=>ctx.fillText(ln,cx,y+2*u+i*4.2*u));
+  // S·A 홀로 효과
+  if(p.rank==='S'||p.rank==='A'){ ctx.save(); rr(ctx,x0+b,y0+b,cw-2*b,ch-2*b,5*u-b); ctx.clip(); ctx.globalCompositeOperation='overlay'; ctx.globalAlpha=p.rank==='S'?.38:.3;
+    ctx.fillStyle=p.rank==='S'?grad(ctx,x0,y0,x0+cw,y0+ch,['#ff7ab3','#ffd36e','#7effc6','#7ec8ff','#c69bff','#ff7ab3','#ffd36e']):grad(ctx,x0,y0,x0+cw,y0+ch,['rgba(0,0,0,0)','rgba(255,226,140,.9)','rgba(255,255,255,.8)','rgba(255,226,140,.9)','rgba(0,0,0,0)']);
+    ctx.fillRect(x0,y0,cw,ch); ctx.restore(); }
+  // 하단 주소
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#d6e4ff'; ctx.font=`700 30px ${NOTO}`; ctx.fillText(SITE.replace('https://',''),W/2,1302);
+  return await new Promise(res=>cv.toBlob(res,'image/png'));
+}
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast.tm); toast.tm=setTimeout(()=>t.hidden=true,2200); }
+let zoomP=null;
+$('shareBtn').addEventListener('click', async ()=>{
+  if(!zoomP) return;
+  const btn=$('shareBtn'); btn.disabled=true; btn.textContent='이미지 만드는 중…';
+  try{
+    const blob=await renderCardImage(zoomP);
+    const file=new File([blob],`V9_${zoomP.name}.png`,{type:'image/png'});
+    const text=`삼성 V9 카드팩에서 ${zoomP.rank}등급 ${zoomP.name} 뽑음!\n${SITE}`;
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],text}); }catch(e){ if(e.name!=='AbortError') throw e; }
+    } else {
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href),4000); toast('이미지를 저장했어요');
+    }
+  }catch(e){ toast('공유하지 못했어요. 다시 눌러 주세요'); }
+  btn.disabled=false; btn.textContent='이미지로 공유';
+});
+$('zoomClose').addEventListener('click', ()=>{ zoom.hidden=true; });
 
 hint('팩 윗부분을 옆으로 쭉 밀어서 찢기','→');
 })();
