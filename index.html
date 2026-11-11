@@ -19,7 +19,7 @@
   --cw:min(76vw,320px,56vh);
   color-scheme:dark;
 }
-html,body{height:100%}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;width:100%}
 body{background:var(--bg);background-image:radial-gradient(120% 70% at 50% -5%,var(--bg2),var(--bg) 68%);color:var(--fg);font-family:var(--body);overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
@@ -31,7 +31,10 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 .hbtns{display:flex;gap:6px}
 .chip{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;white-space:nowrap}
 .chip[aria-pressed="false"]{color:var(--muted)}
-#stage{flex:1;position:relative;touch-action:none;min-height:0}
+#stage{flex:1;position:relative;touch-action:none;min-height:0;overflow:hidden}
+.mini:focus{outline:none}.mini:focus-visible{outline:2px solid var(--ice);outline-offset:3px}
+.pack.locked{filter:grayscale(.85) brightness(.6) drop-shadow(0 26px 34px rgba(0,0,0,.55));animation:none;cursor:not-allowed}
+.btn:disabled{opacity:.45;box-shadow:none}
 #hint{text-align:center;font-size:13px;color:var(--ice);min-height:22px;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:5}
 #hint .arrow{display:inline-block;animation:nudge 1.1s ease-in-out infinite}
 #counter{font-family:var(--num);font-size:18px;letter-spacing:.08em;color:var(--muted)}
@@ -137,7 +140,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 #result h2{margin:0;font-family:var(--display);font-weight:400;font-size:24px;text-wrap:balance;text-align:center}
 #result .best{font-size:13px;color:var(--muted);margin-top:-8px;text-align:center}
 .fan{position:relative;width:100%;height:calc(min(28vw,124px) * 1.4 + 30px)}
-.mini{position:absolute;left:50%;top:6px;width:min(28vw,124px);aspect-ratio:5/7;margin-left:calc(min(28vw,124px)/-2);transform-origin:50% 120%;animation:deal .6s cubic-bezier(.2,.9,.3,1.2) backwards;cursor:pointer;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5));background:none;border:0;padding:0}
+.mini{position:absolute;left:50%;top:6px;width:min(25vw,112px);aspect-ratio:5/7;margin-left:calc(min(25vw,112px)/-2);transform-origin:50% 120%;animation:deal .6s cubic-bezier(.2,.9,.3,1.2) backwards;cursor:pointer;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5));background:none;border:0;padding:0}
 @keyframes deal{from{transform:translateY(40vh) rotate(0);opacity:0}}
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .btn{border-radius:14px;padding:14px 22px;font-weight:900;font-size:15px;border:1px solid var(--line);background:rgba(255,255,255,.06)}
@@ -170,7 +173,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 
 <div id="app">
   <header>
-    <div class="brand"><b>SAMSUNG V9 PACK</b><span>2026 우승 기념 선수 카드</span></div>
+    <div class="brand"><b>SAMSUNG V9 PACK</b><span id="packLeft">2026 우승 기념 선수 카드</span></div>
     <div class="hbtns">
       <button class="chip" id="soundBtn" aria-pressed="true">소리 켬</button>
       <button class="chip" id="dexBtn">도감 0/12</button>
@@ -188,7 +191,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
             <div class="pk-ko">통산 9번째 우승 기념</div>
             <div class="pk-stars" aria-label="통산 우승 9회"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           </div>
-          <div class="pk-foot">랜덤 5장 · S등급 확률 7%</div>
+          <div class="pk-foot">랜덤 5장 · S등급 확률 1.5%</div>
           <div class="crimp"></div>
           <div class="sheen"></div>
         </div>
@@ -337,10 +340,10 @@ PIT.forEach(([name,role,G,ERA,W,L,SV,HLD,IP,SO,tag])=>{
 });
 PLAYERS.forEach((p,i)=>p.id=i+1);
 const RK = {
-  S:{c:'#ff7ad9', w:7,  v:3},
-  A:{c:'#ffcf4a', w:20, v:2},
-  B:{c:'#8fb4ff', w:35, v:1},
-  C:{c:'#9aa6bd', w:38, v:0}
+  S:{c:'#ff7ad9', w:1.5, v:3},
+  A:{c:'#ffcf4a', w:8,  v:2},
+  B:{c:'#8fb4ff', w:30, v:1},
+  C:{c:'#9aa6bd', w:60.5, v:0}
 };
 PLAYERS.forEach(p => p.rank = p.ovr>=90?'S':p.ovr>=80?'A':p.ovr>=70?'B':'C');
 
@@ -358,6 +361,30 @@ const saveDex=()=>{ try{ localStorage.setItem(KEY, JSON.stringify(dex)); }catch(
 const dexCount=()=>PLAYERS.filter(p=>dex[p.id]).length;
 const updateDexBtn=()=>{ $('dexBtn').textContent=`도감 ${dexCount()}/${PLAYERS.length}`; };
 updateDexBtn();
+
+// ---------- 하루 팩 제한 (이 기기 기준, 자정에 충전) ----------
+const DAILY=3, DKEY='v9-pack-daily';
+const today=()=>{ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
+function readDaily(){ try{ const o=JSON.parse(localStorage.getItem(DKEY)||'{}'); return o.d===today()?o.n||0:0; }catch(e){ return 0; } }
+let usedToday=readDaily();
+const packsLeft=()=>Math.max(0,DAILY-usedToday);
+function usePack(){ usedToday=readDaily()+1; try{ localStorage.setItem(DKEY, JSON.stringify({d:today(),n:usedToday})); }catch(e){} updateLeft(); }
+function updateLeft(){ $('packLeft').textContent=`오늘 남은 팩 ${packsLeft()}/${DAILY}`; }
+let cdTimer=0;
+function refreshLimit(){
+  usedToday=readDaily(); updateLeft(); clearInterval(cdTimer);
+  const locked=packsLeft()<=0;
+  pack.classList.toggle('locked', locked);
+  if(!locked) return;
+  const tick=()=>{
+    const now=new Date(), mid=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+    const s=Math.max(0,Math.floor((mid-now)/1000));
+    if(s===0 || readDaily()<DAILY){ clearInterval(cdTimer); refreshLimit(); hint('팩 윗부분을 옆으로 쭉 밀어서 찢기','→'); return; }
+    const hh=String(Math.floor(s/3600)).padStart(2,'0'), mm=String(Math.floor(s%3600/60)).padStart(2,'0'), ss=String(s%60).padStart(2,'0');
+    hint(`오늘 팩 다 깠어요. ${hh}:${mm}:${ss} 뒤 ${DAILY}팩 충전`, '');
+  };
+  tick(); cdTimer=setInterval(tick,1000);
+}
 
 // ---------- haptics + sound ----------
 const vib = p => { try{ navigator.vibrate && navigator.vibrate(p); }catch(e){} };
@@ -448,6 +475,7 @@ let state='pack', drag=null;
 // 팩 옆 여백에서 시작해도 됨: 팩 윗부분 높이에서 누르고 옆으로 그으면 찢어짐
 stage.addEventListener('pointerdown', e => {
   if(state!=='pack') return;
+  if(packsLeft()<=0){ pack.animate([{transform:'rotate(0)'},{transform:'rotate(-2deg)'},{transform:'rotate(2deg)'},{transform:'rotate(0)'}],{duration:260}); return; }
   audio();
   const pr=pack.getBoundingClientRect();
   const ry=(e.clientY-pr.top)/pr.height;
@@ -517,6 +545,7 @@ function setTear(p){
 function openPack(){
   if(state!=='pack') return;
   state='opening';
+  usePack();
   const dir=drag&&drag.dir||1; try{ drag && stage.releasePointerCapture(drag.pid); }catch(e){} drag=null;
   packTop.style.setProperty('--dir', dir);
   packTop.classList.add('fly');
@@ -694,10 +723,10 @@ function showResult(){
   pulled.forEach(p=>{ if(!dex[p.id]) newCount++; dex[p.id]=(dex[p.id]||0)+1; });
   saveDex(); updateDexBtn();
   const best=pulled[pulled.length-1];
-  const n=pulled.length, mw=Math.min(innerWidth*.28,124);
+  const n=pulled.length, mw=Math.min(innerWidth*.25,112);
   const fan=pulled.map((p,i)=>{
     const k=i-(n-1)/2;
-    return `<button class="mini" data-id="${p.id}" aria-label="${p.name} 크게 보기" style="transform:translateX(${k*mw*.52}px) translateY(${Math.abs(k)*7}px) rotate(${k*7}deg);z-index:${i};animation-delay:${i*80}ms">${faceHTML(p)}</button>`;
+    return `<button class="mini" data-id="${p.id}" aria-label="${p.name} 크게 보기" style="transform:translateX(${k*mw*.46}px) translateY(${Math.abs(k)*7}px) rotate(${k*7}deg);z-index:${i};animation-delay:${i*80}ms">${faceHTML(p)}</button>`;
   }).join('');
   result.innerHTML=`<h2>이번 팩 결과</h2>
     <div class="best">최고 등급 ${best.rank} · ${best.name}${newCount?` · 새 카드 ${newCount}장`:''}</div>
@@ -706,6 +735,7 @@ function showResult(){
   result.hidden=false;
   result.querySelectorAll('.mini').forEach(m=>m.addEventListener('click',()=>openZoom(+m.dataset.id)));
   $('again').addEventListener('click', resetPack);
+  if(packsLeft()<=0){ $('again').disabled=true; $('again').textContent='오늘 팩 다 깠어요'; }
   $('toDex').addEventListener('click', openDex);
 }
 function resetPack(){
@@ -714,7 +744,7 @@ function resetPack(){
   packTop.style.transform=''; tear.style.width='0'; pack.style.animation='';
   void pack.offsetWidth;
   pack.animate([{transform:'translateY(60vh) scale(.8)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],{duration:550,easing:'cubic-bezier(.2,.9,.3,1.15)'});
-  state='pack'; hint('팩 윗부분을 옆으로 쭉 밀어서 찢기','→');
+  state='pack'; hint('팩 윗부분을 옆으로 쭉 밀어서 찢기','→'); refreshLimit();
 }
 
 // ---------- dex + zoom ----------
@@ -748,6 +778,7 @@ zc.addEventListener('pointerup', ()=>{ zc.style.transform=''; });
 zoom.addEventListener('click', e=>{ if(!zc.contains(e.target)) zoom.hidden=true; });
 
 hint('팩 윗부분을 옆으로 쭉 밀어서 찢기','→');
+refreshLimit();
 })();
 </script>
 
