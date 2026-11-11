@@ -461,7 +461,7 @@ stage.addEventListener('pointerdown', e => {
   }
   stage.setPointerCapture(e.pointerId);
   packTop.classList.remove('snap');
-  drag={x:e.clientX, y:e.clientY, axis:null, dir:0, p:0, lastTick:0, w:pr.width, l:pr.left, r:pr.right, vx:0, lx:e.clientX, lt:performance.now()};
+  drag={pid:e.pointerId, x:e.clientX, y:e.clientY, axis:null, dir:0, p:0, lastTick:0, w:pr.width, l:pr.left, r:pr.right, vx:0, lx:e.clientX, lt:performance.now()};
 });
 // 브라우저 스크롤·뒤로가기 제스처가 찢기를 가로채지 않게 막음
 ['touchstart','touchmove'].forEach(t=>stage.addEventListener(t, e=>{ if(state==='pack') e.preventDefault(); }, {passive:false}));
@@ -517,7 +517,7 @@ function setTear(p){
 function openPack(){
   if(state!=='pack') return;
   state='opening';
-  const dir=drag&&drag.dir||1; drag=null;
+  const dir=drag&&drag.dir||1; try{ drag && stage.releasePointerCapture(drag.pid); }catch(e){} drag=null;
   packTop.style.setProperty('--dir', dir);
   packTop.classList.add('fly');
   const r=pack.getBoundingClientRect();
