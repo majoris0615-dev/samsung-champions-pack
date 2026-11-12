@@ -7,7 +7,7 @@
 <title>삼성 V9 카드팩</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Noto+Serif+KR:wght@600;900&display=swap">
 <style>
 /* Layout: one-screen stage — header, center stage (pack → card stack → result fan), hint line. Deliberately single dark theme (card-opening arena). */
 :root{
@@ -174,6 +174,51 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
   .pack,.sheen,#hint .arrow{animation:none}
   .card.charge .tilt{animation:none}
 }
+/* ---------- 상단 메뉴 + 모의고사 ---------- */
+.tabs{display:flex;gap:4px;margin-top:10px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:12px;padding:3px;position:relative;z-index:60}
+.tab{flex:1;border:0;background:none;padding:9px 0;border-radius:9px;font-weight:900;font-size:13px;color:var(--muted)}
+.tab.on{background:var(--blue);color:#fff}
+#quiz{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding-block:12px 24px}
+.paper{background:#f7f5ef;color:#1d1d1f;border-radius:14px;padding:20px 18px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-family:"Noto Serif KR",serif;max-width:520px;margin:0 auto}
+.pp-top{font-size:12px;letter-spacing:.06em;text-align:center;border-bottom:2px solid #1d1d1f;padding-bottom:8px;font-weight:700}
+.pp-title{font-size:34px;font-weight:900;text-align:center;margin:18px 0 4px;letter-spacing:.2em}
+.pp-sub{text-align:center;font-size:13px;color:#555}
+.pp-rules{margin:20px 0;padding-left:18px;font-size:14px;line-height:1.7;font-family:var(--body)}
+.btn.wide{width:100%}
+.q-head{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:#555;font-family:var(--body)}
+.q-bar{height:4px;background:#e2dfd6;border-radius:4px;margin:8px 0 14px;overflow:hidden}
+.q-bar i{display:block;height:100%;background:var(--blue)}
+.q-text{font-size:17px;line-height:1.6;font-weight:600;margin:0 0 14px;text-wrap:pretty}
+.q-text em{font-style:normal;font-size:12px;color:#777}
+.q-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1.5px solid #1d1d1f;margin-bottom:14px;background:#fff}
+.q-stats div{padding:8px 2px;text-align:center;border-right:1px solid #bbb;border-bottom:1px solid #bbb;display:flex;flex-direction:column;gap:2px}
+.q-stats div:nth-child(4n){border-right:0}
+.q-stats div:nth-child(n+5){border-bottom:0}
+.q-stats b{font-family:var(--num);font-size:22px;font-weight:400;font-variant-numeric:tabular-nums}
+.q-stats span{font-size:11px;color:#555;font-family:var(--body);font-weight:700}
+.q-opts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.q-opt{width:100%;text-align:left;display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #d6d2c6;border-radius:10px;padding:12px 14px;font-size:16px;font-family:var(--body);font-weight:700;color:#1d1d1f}
+.q-num{font-size:18px;width:20px;flex:none}
+.q-opt.right{border-color:#1a9c5b;background:#e6f6ec}
+.q-opt.wrong{border-color:#d64545;background:#fbeaea}
+.q-opts.done .q-opt:not(.right):not(.wrong){opacity:.45}
+.q-exp{margin:14px 0;font-family:var(--body);font-size:14px;line-height:1.6;padding:10px 12px;border-left:4px solid var(--blue);background:#eef3ff;border-radius:4px}
+.q-exp.no{border-left-color:#d64545;background:#fbeaea}
+.rp-row{display:grid;grid-template-columns:1.4fr 1fr 1fr;border:1.5px solid #1d1d1f;margin-top:16px;background:#fff}
+.rp-row div{padding:10px 6px;border-right:1px solid #1d1d1f;display:flex;flex-direction:column;gap:4px;text-align:center}
+.rp-row div:last-child{border-right:0}
+.rp-row span{font-size:11px;color:#555;font-family:var(--body)}
+.rp-row b{font-size:20px}
+.rp-row .rp-grade{font-size:34px;color:#c0392b}
+.rp-comment{text-align:center;font-weight:700;margin:16px 0;line-height:1.5}
+.rp-list{list-style:none;padding:0;margin:0 0 18px;font-family:var(--body);display:flex;flex-direction:column;gap:8px}
+.rp-list li{display:flex;gap:10px;align-items:flex-start;font-size:13px;border-bottom:1px dashed #ccc;padding-bottom:8px}
+.rp-list p{margin:0;font-weight:700;line-height:1.45}
+.rp-list small{color:#666}
+.mk{font-family:var(--num);font-size:20px;width:18px;flex:none}
+.rp-list .ok .mk{color:#1a9c5b}
+.rp-list .no .mk{color:#d64545}
+.paper .btn:not(.primary){color:#1d1d1f;background:#fff;border-color:#ccc}
 </style>
 </head>
 <body>
@@ -186,6 +231,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
       <button class="chip" id="dexBtn">도감 0/12</button>
     </div>
   </header>
+  <nav class="tabs" role="tablist"><button class="tab on" role="tab" aria-selected="true" data-view="pack">카드팩</button><button class="tab" role="tab" aria-selected="false" data-view="quiz">모의고사</button></nav>
 
   <div id="stage">
     <div class="pack-wrap" id="packWrap">
@@ -215,6 +261,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
     <div id="result" hidden></div>
   </div>
 
+  <div id="quiz" hidden></div>
   <div id="hint"><span id="counter"></span><span id="hintText">팩 윗부분을 옆으로 쭉 밀어서 찢기</span><span class="arrow" id="hintArrow">→</span></div>
   <div class="note">2026 정규시즌 기록 · 등급과 OVR은 재미로 매긴 점수</div>
 </div>
@@ -923,6 +970,98 @@ $('shareBtn').addEventListener('click', async ()=>{
 });
 $('zoomClose').addEventListener('click', ()=>{ zoom.hidden=true; });
 
+// ---------- 모의고사 ----------
+const quizEl=$('quiz'), noteEl=document.querySelector('.note'), hintBox=$('hint');
+function showView(v){
+  const q=v==='quiz';
+  document.querySelectorAll('.tab').forEach(t=>{ const on=t.dataset.view===v; t.classList.toggle('on',on); t.setAttribute('aria-selected',on); });
+  stage.hidden=q; hintBox.hidden=q; noteEl.hidden=q; quizEl.hidden=!q;
+  if(q && !quizEl.dataset.ready){ quizCover(); quizEl.dataset.ready='1'; }
+  try{ history.replaceState(null,'',q?'#quiz':location.pathname+location.search); }catch(e){}
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>showView(t.dataset.view)));
+// 기록 문제에 쓰는 주전급 선수
+const BAT_Q=['구자욱','디아즈','최형우','김지찬','김성윤','류지혁','박승규','강민호','전병우','이재현','김영웅'];
+const PIT_Q=['후라도','원태인','최원태','양창섭','오러클린','페덱','김재윤','이승민','장찬희','배찬승'];
+// 우승 시즌 상식 (이번에 확인한 사실만)
+const TRIVIA=[
+  {q:'2026년 삼성 라이온즈의 한국시리즈 우승은 구단 통산 몇 번째 우승일까?',a:'9번째',opts:['6번째','7번째','8번째','9번째','10번째'],exp:'1985, 2002, 2005, 2006, 2011~2014년에 이어 통산 9번째 우승이다.'},
+  {q:'2026 한국시리즈에서 삼성이 꺾은 상대 팀은?',a:'KT 위즈',opts:['KIA 타이거즈','LG 트윈스','KT 위즈','한화 이글스','두산 베어스'],exp:'KT 위즈를 4승 1패로 꺾었다.'},
+  {q:'우승을 확정한 한국시리즈 5차전의 최종 스코어는?',a:'12-1',opts:['3-2','5-4','7-3','9-0','12-1'],exp:'11월 8일 대구삼성라이온즈파크에서 12-1로 이겼다.'},
+  {q:'2026 한국시리즈 MVP는?',a:'구자욱',opts:['구자욱','디아즈','최형우','후라도','박승규'],exp:'한국시리즈 타율 .500을 기록했다.'},
+  {q:'2026 정규시즌 타격왕 구자욱의 시즌 타율은?',a:'.371',opts:['.338','.349','.356','.362','.371'],exp:'출루율 .458도 리그 1위였다.'},
+  {q:'35세이브로 2026 세이브 1위에 오른 투수는?',a:'김재윤',opts:['김재윤','이승민','배찬승','김태훈','최지광'],exp:'64경기 평균자책점 3.22를 기록했다.'},
+  {q:'2026 정규시즌 144경기에 모두 나와 129타점을 올린 선수는?',a:'디아즈',opts:['디아즈','구자욱','최형우','강민호','전병우'],exp:'타점 리그 2위였다.'},
+  {q:'플레이오프와 한국시리즈 3경기에서 3승 0패를 거둔 투수는?',a:'후라도',opts:['후라도','원태인','최원태','페덱','양창섭'],exp:'가을야구 평균자책점 1.31을 기록했다.'},
+  {q:'2026 정규시즌 삼성 팀 내 도루 1위(29개)는?',a:'류지혁',opts:['김지찬','김성윤','류지혁','박승규','구자욱'],exp:'김지찬 22개, 김성윤 19개가 뒤를 이었다.'},
+  {q:'삼성으로 돌아온 첫해에 18홈런 106타점을 기록한 지명타자는?',a:'최형우',opts:['최형우','디아즈','강민호','김헌곤','전병우'],exp:'타율 .301로 3할도 넘겼다.'},
+  {q:'23홀드로 리그 홀드 2위에 오른 삼성 투수는?',a:'이승민',opts:['이승민','배찬승','김태훈','최지광','임기영'],exp:'팀 최다인 74경기에 등판했다.'},
+  {q:'이번 한국시리즈 우승은 몇 년 만의 우승일까?',a:'12년',opts:['8년','10년','11년','12년','14년'],exp:'2014년 이후 12년 만이다.'},
+  {q:'2026 삼성의 정규시즌 최종 순위는?',a:'2위',opts:['1위','2위','3위','4위','5위'],exp:'2위로 플레이오프에 직행했다.'},
+  {q:'등번호 47번을 단 삼성의 베테랑 포수는?',a:'강민호',opts:['강민호','박세혁','김도환','장승현','김재성'],exp:'KBO 역대 최다 출장 기록을 갖고 있다.'},
+  {q:'2026 정규시즌 삼성에서 10승을 거둔 투수는 몇 명일까?',a:'0명',opts:['0명','1명','2명','3명','4명'],exp:'후라도의 9승이 팀 최다였다.'}
+];
+const shuffle=arr=>{ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const regOf=n=>PLAYERS.find(p=>p.name===n && !p.ps);
+function makeExam(){
+  const picks=shuffle([...BAT_Q.map(n=>['B',n]),...PIT_Q.map(n=>['P',n])]).slice(0,5);
+  const stat=picks.map(([t,n])=>{ const list=t==='B'?BAT_Q:PIT_Q, p=regOf(n);
+    return {kind:'stat',p,q:`다음은 2026 정규시즌 어느 ${t==='B'?'타자':'투수'}의 기록일까?`,a:n,opts:shuffle([n,...shuffle(list.filter(x=>x!==n)).slice(0,4)]),exp:`${n} (${p.pos}, 등번호 ${p.no})`}; });
+  const triv=shuffle(TRIVIA).slice(0,5).map(x=>({kind:'trivia',...x,opts:shuffle(x.opts)}));
+  return shuffle([...stat,...triv]);
+}
+let exam=[], qi=0, answers=[];
+function quizCover(){
+  quizEl.innerHTML=`<div class="paper">
+    <div class="pp-top">2026학년도 V9 모의고사 문제지</div>
+    <h2 class="pp-title">야구 영역</h2>
+    <div class="pp-sub">삼성 라이온즈 2026 우승 시즌</div>
+    <ul class="pp-rules"><li>모두 10문항이고 문항당 10점입니다.</li><li>기록 보고 선수 맞히기 5문항과 우승 시즌 상식 5문항이 섞여 나옵니다.</li><li>답을 고르면 바로 정답을 알려 줍니다.</li></ul>
+    <button class="btn primary wide" id="qStart">시험 시작</button></div>`;
+  $('qStart').addEventListener('click',()=>{ audio(); exam=makeExam(); qi=0; answers=[]; renderQ(); });
+}
+function renderQ(){
+  const x=exam[qi];
+  const table = x.kind==='stat' ? `<div class="q-stats">${x.p.stats.map(([l,v])=>`<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>` : '';
+  quizEl.innerHTML=`<div class="paper">
+    <div class="q-head"><span>야구 영역</span><span>${qi+1} / ${exam.length}</span></div>
+    <div class="q-bar"><i style="width:${qi/exam.length*100}%"></i></div>
+    <p class="q-text"><b>${qi+1}.</b> ${x.q} <em>[10점]</em></p>${table}
+    <ol class="q-opts">${x.opts.map((o,i)=>`<li><button class="q-opt" data-i="${i}"><span class="q-num">${'①②③④⑤'[i]}</span>${o}</button></li>`).join('')}</ol>
+    <div class="q-exp" hidden></div>
+    <button class="btn primary wide" id="qNext" hidden>${qi+1<exam.length?'다음 문제':'성적표 보기'}</button></div>`;
+  quizEl.scrollTop=0;
+  const list=quizEl.querySelector('.q-opts');
+  list.querySelectorAll('.q-opt').forEach(b=>b.addEventListener('click',()=>{
+    if(answers[qi]) return;
+    const pick=x.opts[+b.dataset.i], ok=pick===x.a; answers[qi]={pick,ok};
+    list.classList.add('done');
+    list.querySelectorAll('.q-opt').forEach(o=>{ if(x.opts[+o.dataset.i]===x.a) o.classList.add('right'); });
+    if(!ok) b.classList.add('wrong');
+    const ex=quizEl.querySelector('.q-exp'); ex.hidden=false; ex.classList.toggle('no',!ok);
+    ex.textContent=(ok?'정답입니다. ':`오답입니다. 정답은 ${x.a}. `)+(x.kind==='stat'?x.exp:x.exp);
+    if(ok){ sfx.B(); vib(15); } else { tone(196,.28,.09,'square'); vib([30,40,30]); }
+    const nb=$('qNext'); nb.hidden=false; nb.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }));
+  $('qNext').addEventListener('click',()=>{ qi++; qi<exam.length ? renderQ() : renderReport(); });
+}
+function renderReport(){
+  const score=answers.filter(a=>a.ok).length*10;
+  const grade=score>=100?1:score>=90?2:score>=80?3:score>=70?4:score>=60?5:score>=50?6:score>=40?7:score>=30?8:9;
+  const comment=grade===1?'만점! 라팍 연간회원권 각입니다.':grade<=3?'우승 시즌을 제대로 챙겨 봤네요.':grade<=6?'중계는 좀 봤네요. 조금만 더!':'카드팩부터 다시 까고 오세요.';
+  quizEl.innerHTML=`<div class="paper">
+    <div class="pp-top">2026학년도 V9 모의고사 성적통지표</div>
+    <div class="rp-row"><div><span>영역</span><b>야구(삼성)</b></div><div><span>원점수</span><b>${score}</b></div><div><span>등급</span><b class="rp-grade">${grade}</b></div></div>
+    <p class="rp-comment">${comment}</p>
+    <ol class="rp-list">${exam.map((x,i)=>`<li class="${answers[i].ok?'ok':'no'}"><span class="mk">${answers[i].ok?'O':'X'}</span><div><p>${i+1}. ${x.kind==='stat'?'기록 보고 선수 맞히기':x.q}</p><small>정답: ${x.a}${answers[i].ok?'':`, 내 답: ${answers[i].pick}`}</small></div></li>`).join('')}</ol>
+    <div class="actions"><button class="btn primary" id="qRetry">다시 풀기</button><button class="btn" id="qToPack">카드팩 하러 가기</button></div></div>`;
+  quizEl.scrollTop=0;
+  if(grade===1){ sfx.S(); burst(innerWidth/2,innerHeight*.3,RAINBOW,120,{speed:12,size:8,life:90}); }
+  else if(grade<=3){ sfx.A(); burst(innerWidth/2,innerHeight*.3,['#ffcf4a','#fff3b8','#ffffff'],60,{speed:10,size:7,life:70}); }
+  $('qRetry').addEventListener('click',()=>{ exam=makeExam(); qi=0; answers=[]; renderQ(); });
+  $('qToPack').addEventListener('click',()=>showView('pack'));
+}
+if(location.hash==='#quiz') showView('quiz');
 hint('팩 윗부분을 옆으로 쭉 밀어서 찢기','→');
 })();
 </script>
