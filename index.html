@@ -1302,7 +1302,9 @@ function moveCard(a,b){
 function bindFieldDrag(){
   const all=[...lineupEl.querySelectorAll('.lu-slot')];
   all.forEach(el=>{
-    let d=null; const k=el.dataset.k;
+    let d=null, skipClick=false; const k=el.dataset.k;
+    // 목록은 click에서 연다 (pointerup에서 열면 손 뗄 때 생기는 클릭이 새 목록 카드를 눌러 버림)
+    el.addEventListener('click',()=>{ if(skipClick){ skipClick=false; return; } if(!luRevealing) openPick(k); });
     el.addEventListener('pointerdown',e=>{ if(luRevealing) return; d={x:e.clientX,y:e.clientY,drag:false,ghost:null}; if(slotP(k)) try{ el.setPointerCapture(e.pointerId); }catch(_){} });
     el.addEventListener('pointermove',e=>{
       if(!d || !slotP(k)) return;
@@ -1318,11 +1320,10 @@ function bindFieldDrag(){
     const end=(e,cancel)=>{
       if(!d) return; const was=d; d=null;
       if(was.ghost) was.ghost.remove(); all.forEach(o=>o.classList.remove('lifting','can','cant'));
-      if(!was.drag){ if(!cancel) openPick(k); return; }
-      if(cancel) return;
+      if(!was.drag||cancel) return;
       const hit=document.elementFromPoint(e.clientX,e.clientY), t=hit&&hit.closest('.lu-slot');
-      // 끌다가 제자리에 놓으면 누른 것으로 보고 목록을 연다
-      if(t===el) openPick(k); else if(t) moveCard(k,t.dataset.k);
+      // 끌다가 제자리에 놓으면 뒤따르는 click이 목록을 연다, 다른 자리면 이동하고 click은 무시
+      if(t && t!==el){ skipClick=true; setTimeout(()=>skipClick=false,400); moveCard(k,t.dataset.k); }
     };
     el.addEventListener('pointerup',e=>end(e,false)); el.addEventListener('pointercancel',e=>end(e,true));
   });
@@ -1346,7 +1347,8 @@ function bindOrderDrag(){
 const SORTS={B:[['OVR','ovr'],['타율','타율'],['홈런','홈런'],['타점','타점'],['OPS','OPS'],['도루','도루']],P:[['OVR','ovr'],['ERA','ERA'],['승','승'],['세이브','세이브'],['홀드','홀드'],['탈삼진','탈삼진']]};
 const sortVal=(p,key)=>key==='ovr'?p.ovr:key==='승'?(parseInt(sv(p,'승-패'))||0):key==='ERA'?-(num(sv(p,'ERA'))??99):(num(sv(p,key))??-1);
 let pickState={k:null,sort:'ovr'};
-function openPick(k){ pickState={k,sort:'ovr'}; renderPick(); $('pick').hidden=false; }
+let pickOpenedAt=0;
+function openPick(k){ pickState={k,sort:'ovr'}; renderPick(); $('pick').hidden=false; pickOpenedAt=performance.now(); }
 function renderPick(){
   const {k,sort}=pickState, s=slotOf(k), cur=slotP(k), type=PIT_SLOTS.includes(k)?'P':'B';
   const list=PLAYERS.filter(p=>dex[p.id]&&s.ok(p)).sort((a,b)=>sortVal(b,sort)-sortVal(a,sort)||b.ovr-a.ovr);
@@ -1366,6 +1368,7 @@ function renderPick(){
       <span class="pick-cells">${show.map(l=>`<span class="${l===sort||(sort==='승'&&l==='승-패')?'hi':''}"><b>${sv(p,l)}</b><small>${l}</small></span>`).join('')}</span></button>`; }).join('');
   $('pickSort').querySelectorAll('[data-s]').forEach(b=>b.addEventListener('click',()=>{ pickState.sort=b.dataset.s; renderPick(); $('pickList').scrollTop=0; }));
   $('pickList').querySelectorAll('.pick-item').forEach(b=>b.addEventListener('click',()=>{
+    if(performance.now()-pickOpenedAt<350) return; // 열자마자 들어온 클릭은 무시
     const id=+b.dataset.id;
     if(!id) delete lu.slots[k];
     else { const p=pById(id); SLOTS.forEach(x=>{ const q=slotP(x.k); if(x.k!==k && q && whoKey(q)===whoKey(p)) delete lu.slots[x.k]; }); lu.slots[k]=id; sfx.flip(); vib(12); }
