@@ -1180,7 +1180,9 @@ function autoFill(){
   audio(); lu.slots={}; const used=new Set();
   ['C','SS','2B','3B','1B','CF','LF','RF','SP','CL','RP1','RP2','DH'].forEach(k=>{
     const s=SLOTS.find(x=>x.k===k);
-    const best=PLAYERS.filter(p=>dex[p.id]&&s.ok(p)&&!used.has(whoKey(p))).sort((a,b)=>b.ovr-a.ovr)[0];
+    // 원래 포지션이 같은 선수를 먼저, 없으면 느슨한 기준으로
+    const pool=PLAYERS.filter(p=>dex[p.id]&&s.ok(p)&&!used.has(whoKey(p))).sort((a,b)=>b.ovr-a.ovr);
+    const best=pool.find(p=>p.pos===s.label||(k==='CL'&&p.pos==='마무리'))||(k==='DH'?pool[0]:pool.find(p=>!SLOTS.some(x=>x.label===p.pos&&!slotP(x.k)&&!lu.slots[x.k]))||pool[0]);
     if(best){ lu.slots[k]=best.id; used.add(whoKey(best)); }
   });
   renderLineup(); toast(luFilled().length?'가진 카드로 채웠어요':'넣을 카드가 없어요');
