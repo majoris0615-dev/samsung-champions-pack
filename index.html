@@ -1236,18 +1236,20 @@ function makeSlots(pool,random){
 }
 // ---- 경기용 능력치: 표본이 적은 선수는 리그 평균 쪽으로 당김 ----
 const LG={avg:.265,obp:.340,slg:.400,era:4.30,whip:1.40};
+// 출전이 적은 선수는 리그 평균이 아니라 후보급 수준 쪽으로 당긴다
+const REP={avg:.225,obp:.290,slg:.320,era:5.60,whip:1.65};
 function batProf(p){
   const w=p.ps?.75:Math.min(1,(p.G||0)/100), mix=(v,lg)=>v==null?lg:w*v+(1-w)*lg;
   const a0=num(sv(p,'타율')), o0=num(sv(p,'출루율')), ops0=num(sv(p,'OPS'));
-  const avg=mix(a0,LG.avg), obp=Math.max(avg+.01,mix(o0,LG.obp)), slg=Math.max(avg,mix(ops0!=null&&o0!=null?ops0-o0:null,LG.slg));
+  const avg=mix(a0,REP.avg), obp=Math.max(avg+.01,mix(o0,REP.obp)), slg=Math.max(avg,mix(ops0!=null&&o0!=null?ops0-o0:null,REP.slg));
   const H=num(sv(p,'안타'))||0, HR=num(sv(p,'홈런'))||0;
   const hr=H>=(p.ps?8:20)?Math.min(.3,HR/H):.06, dbl=Math.max(.05,Math.min(.35,(slg-avg)/avg-3*hr));
   return {avg,obp,slg,hr,dbl};
 }
 function pitProf(p){
   const ip=num(sv(p,'이닝'))||0, w=p.ps?.75:Math.min(1,ip/60), mix=(v,lg)=>v==null?lg:w*v+(1-w)*lg;
-  const era=mix(num(sv(p,'ERA')),LG.era), whip=mix(num(sv(p,'WHIP')),LG.whip), so=num(sv(p,'탈삼진'))||0;
-  return {f:Math.max(.72,Math.min(1.35,.5*era/LG.era+.5*whip/LG.whip)), k:ip>=5?Math.max(.12,Math.min(.42,so/ip/3)):.25};
+  const era=mix(num(sv(p,'ERA')),REP.era), whip=mix(num(sv(p,'WHIP')),REP.whip), so=num(sv(p,'탈삼진'))||0;
+  return {f:Math.max(.7,Math.min(1.45,.5*era/LG.era+.5*whip/LG.whip)), k:ip>=5?Math.max(.12,Math.min(.42,so/ip/3)):.25};
 }
 // 추천 타순: 1·2번 출루율, 3번 OPS, 4번 장타율, 5번 OPS, 나머지 OPS 순
 function recOrder(slots){
