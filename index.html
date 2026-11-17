@@ -1441,10 +1441,17 @@ async function shareLineup(){
 const gameBody=$('gameBody'); let gameTimer=0, gOpp=null;
 // 상대 팀은 내 라인업에 없는 선수로만 짠다 (같은 선수가 양쪽에 나오지 않게)
 const restPool=()=>{ const mine=new Set(luFilled().map(s=>whoKey(slotP(s.k)))); return PLAYERS.filter(p=>!mine.has(whoKey(p))); };
+// 못 채운 자리는 남은 선수 전체에서, 그래도 없으면 전체 선수에서 채운다
+function fillRest(slots){
+  [restPool(),PLAYERS].forEach(pool=>FILL_ORDER.forEach(k=>{ if(slots[k]) return;
+    const used=new Set(Object.values(slots).map(id=>whoKey(pById(id))));
+    const c=pool.filter(p=>slotOf(k).ok(p)&&!used.has(whoKey(p))).sort((a,b)=>b.ovr-a.ovr)[0]; if(c) slots[k]=c.id; }));
+  return slots;
+}
 const OPPS=[
-  {id:'rand',name:'랜덤 올스타',desc:'내 라인업에 없는 선수로 무작위 구성',lv:'쉬움',build:()=>makeSlots(restPool().filter(p=>!p.ps&&p.ovr>=55),true)},
-  {id:'reg',name:'정규시즌 베스트',desc:'남은 정규시즌 카드로 짠 최강 팀',lv:'보통',build:()=>makeSlots(restPool().filter(p=>!p.ps),false)},
-  {id:'ps',name:'가을야구 베스트',desc:'남은 가을야구 카드까지 넣은 최강 팀',lv:'어려움',build:()=>makeSlots(restPool(),false)}
+  {id:'rand',name:'랜덤 올스타',desc:'내 라인업에 없는 선수로 무작위 구성',lv:'쉬움',build:()=>fillRest(makeSlots(restPool().filter(p=>!p.ps&&p.ovr>=55),true))},
+  {id:'reg',name:'정규시즌 베스트',desc:'남은 정규시즌 카드로 짠 최강 팀',lv:'보통',build:()=>fillRest(makeSlots(restPool().filter(p=>!p.ps),false))},
+  {id:'ps',name:'가을야구 베스트',desc:'남은 가을야구 카드까지 넣은 최강 팀',lv:'어려움',build:()=>fillRest(makeSlots(restPool(),false))}
 ];
 const slotsOvr=sl=>{ const v=Object.values(sl).map(pById); return v.length?Math.round(v.reduce((a,p)=>a+p.ovr,0)/v.length):0; };
 function teamFrom(name,slots,order){ return {name,bat:order.map(k=>({p:pById(slots[k]),pos:slotOf(k).label,pr:batProf(pById(slots[k]))})),pit:PIT_SLOTS.map(k=>({p:pById(slots[k]),pr:pitProf(pById(slots[k]))}))}; }
