@@ -1307,7 +1307,7 @@ function bindFieldDrag(){
     el.addEventListener('pointermove',e=>{
       if(!d || !slotP(k)) return;
       if(!d.drag){
-        if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<10) return;
+        if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<18) return;
         d.drag=true; const c=el.querySelector('.lu-card'), r=c.getBoundingClientRect();
         d.ghost=c.cloneNode(true); d.ghost.classList.add('lu-ghost'); d.ghost.style.width=r.width+'px'; d.ghost.style.height=r.height+'px'; document.body.appendChild(d.ghost);
         el.classList.add('lifting'); const A=slotP(k);
@@ -1321,7 +1321,8 @@ function bindFieldDrag(){
       if(!was.drag){ if(!cancel) openPick(k); return; }
       if(cancel) return;
       const hit=document.elementFromPoint(e.clientX,e.clientY), t=hit&&hit.closest('.lu-slot');
-      if(t && t!==el) moveCard(k,t.dataset.k);
+      // 끌다가 제자리에 놓으면 누른 것으로 보고 목록을 연다
+      if(t===el) openPick(k); else if(t) moveCard(k,t.dataset.k);
     };
     el.addEventListener('pointerup',e=>end(e,false)); el.addEventListener('pointercancel',e=>end(e,true));
   });
