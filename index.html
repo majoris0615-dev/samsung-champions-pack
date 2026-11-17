@@ -298,7 +298,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pos
 .g-opp{display:flex;align-items:center;gap:12px;text-align:left;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;padding:14px}
 .g-opp b{font-family:var(--display);font-weight:400;font-size:18px;display:block}
 .g-opp small{font-size:12px;color:var(--muted);font-weight:700}
-.g-opp .g-o{margin-left:auto;font-family:var(--num);font-size:26px;flex:none}
+.g-opp .pill{margin-left:auto;flex:none}
+.g-opp .g-o{font-family:var(--num);font-size:26px;flex:none}
 .g-sb{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;background:#0a1a3d;border:1px solid var(--line);border-radius:10px;overflow:hidden;table-layout:fixed}
 .g-sb th,.g-sb td{font-size:12px;padding:6px 0;text-align:center;font-weight:700;border-bottom:1px solid var(--line)}
 .g-sb th{color:var(--muted);font-size:11px}
@@ -1449,7 +1450,7 @@ const slotsOvr=sl=>{ const v=Object.values(sl).map(pById); return v.length?Math.
 function teamFrom(name,slots,order){ return {name,bat:order.map(k=>({p:pById(slots[k]),pos:slotOf(k).label,pr:batProf(pById(slots[k]))})),pit:PIT_SLOTS.map(k=>({p:pById(slots[k]),pr:pitProf(pById(slots[k]))}))}; }
 function openGame(){
   audio(); $('game').hidden=false; $('gameSub').textContent=`내 팀 OVR ${teamOvr()}${gRec.w+gRec.l+gRec.d?`, 전적 ${recText()}`:''}`;
-  gameBody.innerHTML=`<p class="lu-tip" style="text-align:left">상대 팀을 고르면 9이닝 경기를 문자중계로 보여줘요. 결과는 선수들의 실제 기록으로 확률을 계산해서 나와요.</p>`+OPPS.map(o=>`<button class="g-opp" data-o="${o.id}"><span><b>${o.name}</b><small>${o.desc}</small></span><span class="pill${o.lv==='어려움'?' ps':o.lv==='쉬움'?' rec':' on'}">${o.lv}</span></button>`).join('');
+  gameBody.innerHTML=`<p class="lu-tip" style="text-align:left">상대 팀을 고르면 9이닝 경기를 문자중계로 보여줘요. 결과는 선수들의 실제 기록으로 확률을 계산해서 나와요.</p>`+OPPS.map(o=>`<button class="g-opp" data-o="${o.id}"><span><b>${o.name}</b><small>${o.desc}</small></span><span class="pill${o.lv==='어려움'?' ps':o.lv==='쉬움'?' rec':' on'}">${o.lv}</span><span class="g-o">${o.id==='rand'?'?':slotsOvr(o.build())}</span></button>`).join('');
   gameBody.querySelectorAll('.g-opp').forEach(b=>b.addEventListener('click',()=>{ gOpp=OPPS.find(o=>o.id===b.dataset.o); startGame(); }));
 }
 function closeGame(){ clearTimeout(gameTimer); $('game').hidden=true; renderLineup(); }
@@ -1541,7 +1542,7 @@ function showFinal(G){
   const wt=res==='lose'?0:1, cand=[...G.T[wt].bat.map(b=>{ const s=G.bs[wt][b.p.id]||{ab:0,h:0,hr:0,rbi:0}; return {name:b.p.name,v:s.rbi*2+s.h+s.hr*2,line:`${s.ab}타수 ${s.h}안타${s.hr?` ${s.hr}홈런`:''} ${s.rbi}타점`}; }),
     ...G.T[wt].pit.map(p=>{ const s=G.ps[wt][p.p.id]; return s?{name:p.p.name,v:s.outs/3*1.1-s.r*2+s.k*.3,line:`${ipStr(s.outs/3)}이닝 ${s.r}실점 ${s.k}탈삼진`}:null; }).filter(Boolean)].sort((x,y)=>y.v-x.v)[0];
   gameBody.innerHTML=`<div class="g-final ${res}"><small>경기 종료${last.inn>9?`, 연장 ${last.inn}회`:''}</small><b>${res==='win'?'승리':res==='lose'?'패배':'무승부'}</b><span>${h} : ${a}</span><small>내 팀 대 ${G.T[0].name}</small></div>
-    ${sbHTML(G,last,true)}
+    ${sbHTML(G,{...last,ln:G.ln},true)}
     <div class="g-mvp"><small>${res==='lose'?'상대 팀 수훈 선수':'오늘의 MVP'}</small><b>${cand.name}</b><span>${cand.line}</span></div>
     <h4 class="g-h">내 타자 기록</h4>
     <table class="g-box"><thead><tr><th>타순</th><th>선수</th><th>타수</th><th>안타</th><th>홈런</th><th>타점</th></tr></thead><tbody>${me.bat.map((b,i)=>{ const s=bs[b.p.id]||{ab:0,h:0,hr:0,rbi:0}; return `<tr><td>${i+1}</td><td>${b.p.name}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.hr}</td><td>${s.rbi}</td></tr>`; }).join('')}</tbody></table>
